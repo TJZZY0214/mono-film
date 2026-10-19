@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MONO FILM V2.0｜韓系四格拍貼製作機</title>
+<style>
+:root{--w:#FFFFFF;--s:#F5F5F5;--m:#D9D9D9;--c:#484848;--k:#171717;--f:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,Arial,sans-serif}
+*{box-sizing:border-box;margin:0}
+html,body{background:var(--s);color:var(--k);font:15px/1.6 var(--f)}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--k);outline-offset:2px}
+header{display:flex;justify-content:space-between;align-items:center;padding:14px 24px;border-bottom:1px solid var(--m);background:var(--w);position:sticky;top:0;z-index:5}
+.logo{font-weight:800;letter-spacing:.18em;cursor:pointer;background:none;border:0}
+#step{color:var(--c);font-size:13px}
+.pg{display:none;max-width:1100px;margin:0 auto;padding:32px 24px 56px}
+.pg.on{display:block;animation:in .35s ease}
+@keyframes in{from{opacity:0;transform:translateY(8px)}}
+h2{font-size:24px;font-weight:700;margin-bottom:6px}
+.sub{color:var(--c);margin-bottom:24px}
+.btn{background:var(--k);color:var(--w);border:1px solid var(--k);padding:12px 26px;letter-spacing:.06em;transition:.2s}
+.btn:hover{background:var(--c)}
+.btn.ghost{background:transparent;color:var(--k);border-color:var(--c)}
+.btn.ghost:hover{background:var(--m)}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+.nav{display:flex;gap:12px;margin-top:28px;flex-wrap:wrap}
+/* home */
+.hero{min-height:70vh;display:flex;align-items:center;justify-content:space-between;gap:40px;flex-wrap:wrap}
+h1{font-size:clamp(64px,13vw,150px);line-height:.88;font-weight:800;letter-spacing:-.04em;margin-bottom:28px}
+.hero p{max-width:380px;color:var(--c);margin-bottom:28px}
+.hero small{display:block;margin-top:16px;color:var(--c);font-size:12px}
+.strip{width:190px;background:var(--w);padding:14px 14px 10px;display:grid;gap:8px;transform:rotate(4deg);box-shadow:0 0 0 1px var(--m),0 18px 40px rgba(0,0,0,.12);margin:0 60px 0 auto}
+.strip i{height:104px;background:linear-gradient(150deg,#bdbdbd,#6a6a6a)}
+.strip i:nth-child(2){background:linear-gradient(200deg,#e4e4e4,#8d8d8d)}
+.strip i:nth-child(3){background:linear-gradient(120deg,#9a9a9a,#303030)}
+.strip i:nth-child(4){background:linear-gradient(170deg,#cfcfcf,#555)}
+.strip b{text-align:center;font-size:11px;letter-spacing:.2em;padding:6px 0 2px}
+/* layout cards */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.card{background:var(--w);border:1px solid var(--m);padding:28px 16px 20px;display:flex;flex-direction:column;align-items:center;gap:20px;transition:.2s}
+.card:hover{border-color:var(--c)}
+.card.on{border-color:var(--k);box-shadow:inset 0 0 0 1px var(--k)}
+.mini{display:grid;gap:5px;background:var(--s);padding:8px;border:1px solid var(--m)}
+.mini i{background:var(--m)}
+.m1{grid-template-columns:1fr;width:62px;height:150px}
+.m2{grid-template-columns:1fr 1fr;width:110px;height:140px}
+.m3{grid-template-columns:repeat(4,1fr);width:170px;height:64px}
+.card span.t{font-weight:600}
+.card em{font-style:normal;color:var(--c);font-size:13px}
+/* source */
+.tabs{display:flex;border-bottom:1px solid var(--m);margin-bottom:20px}
+.tabs button,.tt button{background:none;border:0;padding:10px 18px;color:var(--c);border-bottom:2px solid transparent}
+.tabs button.on,.tt button.on{color:var(--k);border-color:var(--k);font-weight:600}
+.cam{position:relative;background:var(--k);max-width:900px;width:100%;aspect-ratio:4/3;overflow:hidden}
+.cam video{width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+#cd{position:absolute;inset:0;display:grid;place-items:center;font-size:120px;font-weight:800;color:#fff;text-shadow:0 0 30px rgba(0,0,0,.5)}
+#fl{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+#fl.go{animation:fl .4s}
+@keyframes fl{from{opacity:.9}}
+.err{background:var(--w);border:1px solid var(--c);padding:18px;max-width:520px;margin-bottom:12px}
+.drop{background:var(--w);border:1px dashed var(--c);padding:30px;max-width:520px;text-align:center}
+.drop p{color:var(--c);margin:6px 0 14px;font-size:13px}
+#slots{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:24px;max-width:640px}
+.slot{background:var(--w);border:1px solid var(--m);padding:6px}
+.slot .ph{aspect-ratio:4/5;background:var(--s);display:grid;place-items:center;color:var(--m);font-size:28px;font-weight:700;overflow:hidden}
+.slot img{width:100%;height:100%;object-fit:cover}
+.slot .a{display:flex;gap:4px;margin-top:6px}
+.slot .a button{flex:1;font-size:12px;padding:4px 0;border:1px solid var(--m);background:var(--s)}
+.slot .a button:hover{border-color:var(--k)}
+#need{margin-top:12px;color:var(--c);font-size:13px}
+/* editor */
+.ed{display:grid;grid-template-columns:1fr 400px;gap:24px;align-items:start}
+.stage{background:var(--m);padding:24px;display:grid;gap:14px;justify-items:center;align-content:start;position:sticky;top:64px;order:-1;min-height:60vh}
+canvas{display:block;max-width:100%;max-height:74vh;width:auto;height:auto;box-shadow:0 10px 30px rgba(0,0,0,.18);touch-action:none}
+#cv{cursor:grab}
+.tools{background:var(--w);border:1px solid var(--m)}
+.tt{display:flex;overflow-x:auto;border-bottom:1px solid var(--m)}
+.tt button{white-space:nowrap;padding:12px 14px;font-size:14px}
+.tp{display:none;padding:18px;gap:14px}
+.tp.on{display:grid}
+.tp label{font-size:13px;color:var(--c);display:grid;gap:6px}
+.tp input[type=text]{border:1px solid var(--m);padding:9px 10px;background:var(--s)}
+.tp input[type=range]{width:100%;accent-color:var(--k)}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{border:1px solid var(--m);background:var(--w);padding:8px 14px;font-size:14px}
+.opt.on{background:var(--k);color:var(--w);border-color:var(--k)}
+.sw{width:38px;height:38px;border-radius:50%;border:1px solid var(--c);padding:0}
+.sw.on{outline:2px solid var(--k);outline-offset:3px}
+.hint{font-size:12px;color:var(--c)}
+.res{display:grid;place-items:center;background:var(--m);padding:28px}
+#pose{position:absolute;left:0;right:0;bottom:14px;text-align:center;color:#fff;font-weight:600;text-shadow:0 0 12px rgba(0,0,0,.7)}
+#fin.dev{animation:prt 2.8s ease-out,dev 2.8s ease-out}
+@keyframes prt{from{transform:translateY(-105%)}to{transform:none}}
+.res{position:relative;overflow:hidden}
+#edit{max-width:1440px}
+@media(min-width:821px){.stage canvas{max-height:72vh}}
+.tt{flex-wrap:wrap;overflow:visible;gap:6px;padding:12px}
+.tt button{border:1px solid var(--m);border-radius:99px;padding:6px 14px;font-size:13px}
+.tt button.on{background:var(--k);color:#fff;border-color:var(--k)}
+#th{display:flex;gap:10px;justify-content:center}
+.th{position:relative;width:60px;height:60px;border:2px solid transparent;background:#fff;touch-action:none;cursor:grab;user-select:none}
+.th img{width:100%;height:100%;object-fit:cover;pointer-events:none;display:block}
+.th b{position:absolute;left:3px;top:0;font-size:11px;color:#fff;mix-blend-mode:difference}
+.th.on{border-color:var(--k)}.th.over{outline:2px dashed var(--k)}.th.drag{opacity:.5}
+#layout,#source{text-align:center}
+#layout .opts,#source .opts,#source .nav,#layout .nav,.tabs{justify-content:center}
+.cam,.err,.drop,#slots{margin-left:auto;margin-right:auto}
+.grp{border:1px solid var(--m);background:#fff;padding:12px 16px;margin:12px auto 0;max-width:640px}.grp summary{cursor:pointer;font-weight:600}
+.ft{width:58px;padding:0;border:2px solid var(--m);background:#fff;cursor:pointer}.ft img{display:block;width:100%}.ft.on{border-color:var(--k);outline:2px solid var(--k);outline-offset:1px}
+#result{text-align:center}.big{padding:16px 64px;font-size:17px;margin-top:22px}
+.ext{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:28px;text-align:left}
+.ext div{background:#fff;border:1px solid var(--m);padding:16px;display:grid;gap:8px;align-content:start}.ext h3{font-size:14px;margin-bottom:2px}.ext .btn{padding:9px 12px;font-size:14px}
+.tp.on+.tp.on{border-top:1px solid var(--m)}
+.booth{position:relative;width:250px;height:440px;background:#232323;border-radius:16px 16px 0 0;overflow:hidden;margin:0 40px 0 auto;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+.bc{position:absolute;inset:0 0 auto 0;height:100px;z-index:3;background:repeating-linear-gradient(90deg,#171717 0 12px,#2e2e2e 12px 24px);border-bottom:4px solid #484848}
+.bc::after{content:'PHOTO BOOTH';position:absolute;left:0;right:0;bottom:8px;text-align:center;color:#d9d9d9;font-size:11px;letter-spacing:.3em}
+.booth .strip{position:absolute;top:104px;left:50%;width:132px;margin:0;padding:10px 10px 6px;gap:6px;transform:translateX(-50%);animation:slide 6s ease-out infinite;box-shadow:none}
+.booth .strip i{height:64px;background:radial-gradient(circle at 50% 36%,#6b6b6b 0 15%,transparent 16%),radial-gradient(ellipse at 50% 100%,#6b6b6b 0 34%,transparent 35%),linear-gradient(160deg,#dcdcdc,#a9a9a9)}
+@keyframes slide{0%{transform:translate(-50%,-110%)}35%,100%{transform:translate(-50%,0)}}
+#wl figure{cursor:pointer;margin:0}#wl figcaption{font-size:12px;color:var(--c);margin-top:6px;text-align:center}
+#wl.wm-museum{display:flex;gap:46px;overflow-x:auto;padding:70px 50px 50px;background:linear-gradient(#e9e6e0 0 72%,#8a7a68 72%);min-height:460px;align-items:flex-start;transition:.4s}
+#wl.wm-museum figure{flex:0 0 150px;margin-top:var(--y);transform:rotate(var(--r))}
+#wl.wm-museum img{border:8px solid #4a3426;box-shadow:0 10px 18px rgba(0,0,0,.35);background:#efe7da;padding:6px}
+#wl.wm-museum.lt-warm{background:linear-gradient(#f1dcb4 0 72%,#8a6b45 72%)}
+#wl.wm-museum.lt-spot{background:radial-gradient(circle at var(--mx,50%) 45%,#c9c9c9,#161616 60%)}#wl.wm-museum.lt-spot figcaption{color:#ddd}
+#wd{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:30;display:grid;place-items:center;padding:16px}#wd[hidden]{display:none}
+.wdi{background:#fff;max-width:760px;width:100%;max-height:92vh;overflow:auto;padding:18px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}.wdi img{width:100%;border:1px solid var(--m)}.wdi .btn{margin:6px 6px 0 0;padding:9px 16px;display:inline-block}
+@media(max-width:820px){.booth{margin:0 auto}.wdi{grid-template-columns:1fr}}
+.ph{position:relative}.ph:has(video)::after{content:'LIVE';position:absolute;left:4px;top:4px;font-size:10px;background:#171717;color:#fff;padding:0 5px}
+#result .res::before{content:'';position:absolute;top:0;left:0;right:0;height:12px;background:#171717;z-index:2}
+#curtain{position:fixed;inset:0;z-index:20;pointer-events:none;display:flex}
+#curtain i{flex:1;background:repeating-linear-gradient(90deg,#171717 0 14px,#2b2b2b 14px 28px);transform:translateX(-101%)}
+#curtain i+i{transform:translateX(101%)}
+#curtain.run i{animation:cl 1.3s ease-in-out}
+#curtain.run i+i{animation:cr 1.3s ease-in-out}
+@keyframes cl{0%,35%{transform:none}100%{transform:translateX(-101%)}}
+@keyframes cr{0%,35%{transform:none}100%{transform:translateX(101%)}}
+#wl{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:16px}
+#wl img{width:100%;display:block;border:1px solid var(--m);background:#fff}
+#wl small{color:var(--c);font-size:12px}
+#wl button{border:0;background:none;color:var(--c);text-decoration:underline;font-size:12px}
+@keyframes dev{from{filter:brightness(.1) grayscale(1) blur(12px);opacity:.5}55%{filter:brightness(.6) grayscale(1) blur(4px)}to{filter:none;opacity:1}}
+#toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,20px);background:var(--k);color:var(--w);padding:11px 20px;opacity:0;pointer-events:none;transition:.3s;z-index:9;max-width:90vw;font-size:14px}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+@media(max-width:820px){
+ .ed{grid-template-columns:1fr}
+ .stage{order:-1;top:52px;padding:10px;z-index:3}
+ canvas{max-height:42vh}
+ .strip{margin:0 auto}
+ header{padding:12px 16px}
+ .pg{padding:24px 16px 48px}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header><button class="logo" data-go="home">MONO FILM</button><span id="step"></span><button class="opt" data-go="wall">底片牆</button></header>
+<main>
+
+<section id="home" class="pg on"><div class="hero"><div>
+<h1>MONO<br>FILM</h1>
+<p>韓系四格拍貼製作機。拍照或上傳四張照片，選版型、換相框、套濾鏡、寫下日期，最後下載一張 PNG。</p>
+<button class="btn" data-go="layout">START PHOTO BOOTH</button> <button class="btn ghost" data-go="wall">我的底片牆</button>
+<small>所有照片都在你的瀏覽器內處理，不會上傳到伺服器。</small></div>
+<div class="booth" aria-hidden="true"><div class="bc"></div><div class="strip"><i></i><i></i><i></i><i></i><b>MONO FILM</b></div></div></div></section>
+
+<section id="layout" class="pg">
+<h2>選擇版型</h2><p class="sub">之後在編輯器中也能隨時切換，照片不會消失。</p>
+<div class="cards">
+<button class="card" data-k="layout" data-v="strip"><span class="mini m1"><i></i><i></i><i></i><i></i></span><span class="t">經典直式四格</span><em>最常見的拍貼條</em></button>
+<button class="card" data-k="layout" data-v="grid"><span class="mini m2"><i></i><i></i><i></i><i></i></span><span class="t">2×2 方格</span><em>適合直式人像</em></button>
+<button class="card" data-k="layout" data-v="wide"><span class="mini m3"><i></i><i></i><i></i><i></i></span><span class="t">橫式四格</span><em>適合分享與桌布</em></button>
+</div>
+<h2 style="font-size:17px;margin:30px 0 10px">今天的心情（選填，自動搭配相框與濾鏡）</h2><div class="opts moods"></div>
+<div class="nav"><button class="btn ghost" data-go="home">上一步</button><button class="btn" data-go="source">下一步</button></div></section>
+
+<section id="source" class="pg">
+<h2>取得四張照片</h2><p class="sub">用相機倒數拍攝，或從裝置上傳。兩種方式可以混用。</p>
+<div class="tabs"><button data-tab="cam" class="on">相機拍攝</button><button data-tab="up">上傳照片</button></div>
+<div id="pcam">
+ <div id="camErr" class="err" hidden><p id="camMsg"></p><div class="nav" style="margin-top:12px"><button class="btn" data-tab="up">改用照片上傳</button><button class="btn ghost" id="retry">重新嘗試</button></div></div>
+ <div id="camUI" hidden><div class="cam"><video id="vid" playsinline muted></video><div id="cd" hidden></div><div id="pose"></div><div id="fl"></div></div>
+ <details class="grp" open><summary>基本設定</summary>
+ <p class="hint" style="margin-top:12px">倒數秒數</p><div class="opts"><button class="opt" data-k="cd" data-v="3">3 秒</button><button class="opt" data-k="cd" data-v="5">5 秒</button><button class="opt" data-k="cd" data-v="8">8 秒</button></div>
+ <div class="opts" style="margin-top:10px"><button class="opt" id="mirT">鏡像拍攝：開</button><button class="opt" id="recT">Live 記錄：開</button></div></details>
+ <details class="grp"><summary>創意玩法</summary><p class="hint" style="margin-top:10px">姿勢導演風格</p><div class="opts" id="dirO"></div><div class="opts" style="margin-top:8px"><button class="opt" id="rollB">換一組動作</button><button class="opt" id="blT">盲盒挑戰：關</button></div><p class="hint" id="script" style="margin-top:8px"></p></details>
+ <div class="nav"><button class="btn" id="shootAll">開始拍攝（補齊空格）</button></div></div>
+</div>
+<div id="pup" hidden><div class="drop"><b>選擇 JPG／PNG／WebP</b><p>可一次選多張，會依序填入空格。</p><button class="btn" data-pick="all">選擇照片</button></div></div>
+<input id="fi" type="file" accept="image/jpeg,image/png,image/webp" multiple hidden>
+<div id="slots"></div><div id="need"></div>
+<div class="nav"><button class="btn ghost" data-go="layout">上一步</button><button class="btn" id="toEd">下一步：編輯拍貼</button></div></section>
+
+<section id="edit" class="pg">
+<div class="ed">
+<div class="tools">
+ <div class="tt"><button data-tp="a,c" class="on">風格</button><button data-tp="b,h">相框</button><button data-tp="i,g">裝飾</button><button data-tp="d">文字</button><button data-tp="e,f">進階</button></div>
+ <div class="tp on" id="a"><div class="opts">
+  <button class="opt" data-k="layout" data-v="strip">直式四格</button><button class="opt" data-k="layout" data-v="grid">2×2</button><button class="opt" data-k="layout" data-v="wide">橫式四格</button></div>
+  <p class="hint">心情</p><div class="opts moods"></div><button class="btn ghost" id="box">開啟盲盒（隱藏版相框）</button><button class="btn" id="sur">Surprise Film 隨機風格</button><p class="hint">隨機換相框、濾鏡與裝飾，不會動到照片。</p></div>
+ <div class="tp" id="b"><p class="hint">相框樣式（點選縮圖）</p><div class="opts" id="fr2"></div><p class="hint">隱藏版</p><div class="opts" id="sec"></div><p class="hint" id="secT"></p>
+  <label>間距 <input type="range" id="gap" min="8" max="60" value="24"></label>
+  <label>圓角 <input type="range" id="rad" min="0" max="40" value="6"></label></div>
+ <div class="tp on" id="c"><div class="opts">
+  <button class="opt" data-k="filter" data-v="none">原圖</button><button class="opt" data-k="filter" data-v="bw">黑白</button><button class="opt" data-k="filter" data-v="retro">復古</button><button class="opt" data-k="filter" data-v="soft">柔和低飽和</button><button class="opt" data-k="filter" data-v="cool">冷調</button><button class="opt" data-k="filter" data-v="sepia">棕褐</button><button class="opt" data-k="filter" data-v="fade">褪色</button><button class="opt" data-k="filter" data-v="pop">高對比</button><button class="opt" data-k="filter" data-v="dream">夢幻</button></div></div>
+ <div class="tp" id="d">
+  <label>標題 <input type="text" id="ttl" maxlength="20"></label>
+  <label>日期／紀念文字 <input type="text" id="dt" maxlength="24"></label>
+  <div class="opts"><button class="opt" data-k="deco" data-v="none">無</button><button class="opt" data-k="deco" data-v="star">星星</button><button class="opt" data-k="deco" data-v="heart">愛心</button><button class="opt" data-k="deco" data-v="mix">星星＋愛心</button></div></div>
+ <div class="tp" id="e"><p class="hint" id="selTxt"></p><div class="opts"><button class="opt" id="fitA">完整顯示（不裁切）</button><button class="opt" id="fitB">填滿裁切</button></div>
+  <label>縮放 <input type="range" id="zoom" min="1" max="3" step=".01" value="1"></label>
+  <p class="hint">也可以直接在預覽圖上點選相片格，再拖曳調整位置。</p>
+  <button class="btn ghost" id="rst">重設此格</button></div>
+ <div class="tp" id="h"><p class="hint">外框小裝飾</p><div class="opts" id="ornO"></div><p class="hint">裝飾顏色</p><div class="opts" id="ornC"></div></div>
+ <div class="tp" id="i"><p class="hint">上傳你自己的貼圖或裝飾（PNG／JPG／WebP，透明背景效果最好）。加入後可在預覽圖上拖曳位置。</p>
+  <button class="btn ghost" id="stkA">＋ 上傳貼圖</button><input type="file" id="stkF" accept="image/*" multiple hidden>
+  <label>貼圖大小<input type="range" id="stz" min="5" max="80" value="25"></label><label>旋轉角度<input type="range" id="sta" min="-180" max="180" value="0"></label><button class="btn ghost" id="stkD">刪除選取的貼圖</button><p class="hint" id="stkT"></p>
+  <label>上傳自己的相框 PNG（透明圖層，疊在最上層）<input type="file" id="ovf" accept="image/png"></label><button class="btn ghost" id="ovx">移除自訂相框</button>
+  <label>相框大小<input type="range" id="ovs" min="30" max="200" value="100"></label><label>橫向位置<input type="range" id="ovx2" min="-50" max="50" value="0"></label><label>縱向位置<input type="range" id="ovy" min="-50" max="50" value="0"></label><label>透明度<input type="range" id="ovo" min="10" max="100" value="100"></label>
+  <div class="opts"><button class="opt" id="ovT">相框位置：相片上方</button><button class="opt" id="ovK">去除白底</button><button class="opt" id="ovF">拉伸填滿</button></div>
+  <p class="hint">本工具不提供任何藝人或品牌素材。請只使用你自己有權使用的圖片。</p></div>
+ <div class="tp" id="f"><label>顆粒感 <input type="range" id="gr" min="0" max="60" value="0"></label><label>暗角 <input type="range" id="vg" min="0" max="100" value="0"></label>
+  <div class="opts"><button class="opt" data-k="leak" data-v="none">無漏光</button><button class="opt" data-k="leak" data-v="l">左側漏光</button><button class="opt" data-k="leak" data-v="r">右側漏光</button></div>
+  <div class="opts"><button class="opt" id="hl">底片孔洞與邊碼</button></div>
+  <p class="hint">鏡像宇宙</p><div class="opts"><button class="opt" data-k="mirror" data-v="none">無</button><button class="opt" data-k="mirror" data-v="flip">水平鏡像</button><button class="opt" data-k="mirror" data-v="symL">左側對稱</button><button class="opt" data-k="mirror" data-v="symR">右側對稱</button><button class="opt" data-k="mirror" data-v="vert">上下鏡像</button><button class="opt" data-k="mirror" data-v="rgb">RGB 色偏</button></div></div>
+ <div class="tp" id="g"><button class="opt" id="penT">塗鴉模式：關</button><p class="hint">開啟後，在預覽圖上拖曳就是手寫畫筆；關閉時可拖曳貼圖與照片。</p>
+  <div class="opts"><button class="sw" data-k="pen" data-v="#171717" style="background:#171717" aria-label="黑筆"></button><button class="sw" data-k="pen" data-v="#FFFFFF" style="background:#FFFFFF" aria-label="白筆"></button><button class="sw" data-k="pen" data-v="#9A9A9A" style="background:#9A9A9A" aria-label="灰筆"></button></div>
+  <label>筆刷粗細 <input type="range" id="pw" min="2" max="24" value="6"></label>
+  <div class="opts"><button class="opt" id="undo">復原一筆</button><button class="opt" id="clr">清除塗鴉</button></div></div>
+</div>
+<div class="stage"><canvas id="cv" aria-label="拍貼即時預覽"></canvas><div id="th"></div><small class="hint">拖曳下方縮圖，可直接互換照片位置</small></div>
+</div>
+<div class="nav"><button class="btn ghost" data-go="source">上一步：照片</button><button class="btn" data-go="result">完成，確認成品</button></div></section>
+
+<section id="result" class="pg">
+<h2>成品確認</h2><p class="sub">檢查排版，滿意就下載。重新整理頁面後照片會消失，請先下載。</p>
+<p class="hint" id="devHint" hidden>底片沖洗中…點一下作品可加速</p><div class="res"><canvas id="fin" aria-label="完成的拍貼"></canvas></div>
+<div><button class="btn big" id="dl">下載 PNG</button></div>
+<div class="ext">
+ <div><h3>動態作品</h3><button class="btn ghost" id="lvP">預覽 Living Film</button><button class="btn ghost" id="lvD">下載動態</button><button class="btn ghost" id="lcP" hidden>播放 Live 拍貼</button><button class="btn ghost" id="lcD" hidden>下載 Live 整張</button></div>
+ <div><h3>延伸體驗</h3><button class="btn ghost" data-go="receipt">回憶收據</button><button class="btn ghost" data-go="secret">隱藏留言底片</button></div>
+ <div><h3>收藏與分享</h3><button class="btn ghost" id="shr">分享</button><button class="btn ghost" id="wallS">收進底片牆</button></div>
+</div>
+<div class="nav" style="justify-content:center"><button class="btn ghost" data-go="edit">返回編輯</button><button class="btn ghost" id="again">重新製作</button></div></section>
+<section id="receipt" class="pg"><h2>回憶收據</h2><p class="sub">這次拍貼的紀念收據，可以跟照片一起收藏。</p>
+<label class="hint" style="display:grid;gap:6px;max-width:420px;margin-bottom:16px">一句話回憶<input type="text" id="memo" maxlength="30" style="border:1px solid var(--m);padding:9px 10px;background:#fff"></label>
+<div class="res"><canvas id="rc" aria-label="回憶收據"></canvas></div>
+<div class="nav"><button class="btn" id="rcD">下載收據 PNG</button><button class="btn ghost" data-go="result">返回成品</button></div></section>
+<section id="wall" class="pg"><h2>私人底片牆</h2><p class="sub">作品縮圖只存在這台裝置的瀏覽器。清除瀏覽器資料會一併消失，高畫質請另存 PNG。</p><div class="opts" id="wfi" style="margin-bottom:8px;justify-content:flex-start"></div><div class="opts" id="wmo" style="margin-bottom:16px;justify-content:flex-start"></div><div id="wl"></div>
+<div class="nav"><button class="btn" data-go="layout">拍新的一組</button><button class="btn ghost" id="wallC">清空底片牆</button></div></section>
+<section id="secret" class="pg"><h2>隱藏留言底片</h2><p class="sub">把一段只有知道解鎖碼的人才看得到的留言，和這張拍貼一起封裝成互動檔案（單一 HTML）。</p>
+<div style="display:grid;gap:12px;max-width:520px"><label class="hint" style="display:grid;gap:6px">留言內容<textarea id="smsg" maxlength="300" rows="4" style="border:1px solid var(--m);padding:10px;font:inherit;background:#fff"></textarea></label>
+<label class="hint" style="display:grid;gap:6px">解鎖碼（至少 4 個字）<input type="password" id="spw" maxlength="40" style="border:1px solid var(--m);padding:10px;background:#fff"></label>
+<p class="hint">留言會先以 AES-GCM 加密再寫入檔案，檔案內不含明文；照片本身不加密。忘記解鎖碼無法復原，請另外告知收件人。</p></div>
+<div class="nav"><button class="btn" id="sgo">產生互動檔案</button><button class="btn ghost" data-go="result">返回成品</button></div></section>
+<div id="wd" hidden><div class="wdi"><img id="wdi" alt=""><div><h3 id="wdt"></h3><p id="wdp" class="hint"></p><p id="wdm"></p><a class="btn" id="wdD">下載</a><button class="btn ghost" id="wdX">刪除</button><button class="btn ghost" id="wdC">關閉</button></div></div></div>
+</main><div id="curtain"><i></i><i></i></div>
+<div id="toast" role="status"></div>
+
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const FONT='"Noto Sans TC","PingFang TC","Microsoft JhengHei",Arial,sans-serif';
+const FR={white:'#FFFFFF',mist:'#D9D9D9',char:'#484848',tea:'#CDC1B6'};
+const today=()=>{const d=new Date(),p=n=>String(n).padStart(2,'0');return d.getFullYear()+'.'+p(d.getMonth()+1)+'.'+p(d.getDate())};
+const fresh=()=>({layout:'strip',photos:[null,null,null,null],tf:[0,1,2,3].map(()=>({z:1,x:0,y:0})),frame:'white',filter:'none',title:'MONO FILM',date:today(),deco:'none',gap:24,radius:6,sel:0,grain:0,vig:0,leak:'none',holes:false,strokes:[],pen:'#171717',penw:6,mirror:'none',dir:'sweet',blind:false,camMirror:true,mood:'',liveT:null,chal:0,orn:'none',ornC:'auto',fit:true,cd:'5',stk:[],ss:-1,clips:[null,null,null,null],live:false,rec:true,ov:null,penOn:false,dv:null,counted:false});
+let S=fresh(),page='home',saved=true;
+const STEPS={home:'',layout:'1 / 4　選版型',source:'2 / 4　取得照片',edit:'3 / 4　編輯',result:'4 / 4　下載',receipt:'回憶收據',wall:'私人底片牆',secret:'隱藏留言'};
+const sleep=t=>new Promise(r=>setTimeout(r,t));
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('on'),3200)}
+
+/* ---------- geometry & drawing ---------- */
+function geo(){const g=S.gap,p=36;let w,h,c,r,f;
+ if(S.layout=='strip'){w=480;h=360;c=1;r=4;f=210}else if(S.layout=='grid'){w=440;h=420;c=2;r=2;f=210}else{w=340;h=400;c=4;r=1;f=190}
+ const cells=[0,1,2,3].map(i=>({x:p+(i%c)*(w+g),y:p+Math.floor(i/c)*(h+g),w,h}));
+ return{W:2*p+c*w+(c-1)*g,H:2*p+r*h+(r-1)*g+f,cells,fy:p+r*h+(r-1)*g}}
+function lim(i){const im=S.photos[i],c=geo().cells[i],sc=(S.fit?Math.min:Math.max)(c.w/im.naturalWidth,c.h/im.naturalHeight)*S.tf[i].z;
+ return[Math.max(0,(im.naturalWidth*sc-c.w)/2/c.w),Math.max(0,(im.naturalHeight*sc-c.h)/2/c.h)]}
+const clamp=(v,a)=>Math.max(-a,Math.min(a,v));
+function rr(x,X,Y,W,H,r){r=Math.min(r,W/2,H/2);x.beginPath();x.moveTo(X+r,Y);x.arcTo(X+W,Y,X+W,Y+H,r);x.arcTo(X+W,Y+H,X,Y+H,r);x.arcTo(X,Y+H,X,Y,r);x.arcTo(X,Y,X+W,Y,r);x.closePath()}
+function filt(cv,f){if(f=='none')return;const x=cv.getContext('2d'),d=x.getImageData(0,0,cv.width,cv.height),a=d.data;
+ for(let i=0;i<a.length;i+=4){let r=a[i],g=a[i+1],b=a[i+2];const l=.299*r+.587*g+.114*b;
+  if(f=='bw'){r=g=b=(l-128)*1.15+128}
+  else if(f=='retro'){r=(r-128)*.88+142+14;g=(g-128)*.88+136;b=(b-128)*.82+120-10;const m=(r+g+b)/3;r=m+(r-m)*.85;g=m+(g-m)*.85;b=m+(b-m)*.85}
+  else if(f=='soft'){r=l+(r-l)*.5;g=l+(g-l)*.5;b=l+(b-l)*.5;r=(r-128)*.85+150;g=(g-128)*.85+150;b=(b-128)*.85+150}
+  else if(f=='cool'){r=(r*.9-128)*1.05+128;b=b*1.12+8}
+  else if(f=='sepia'){r=l*1.07+30;g=l*.95+14;b=l*.75}
+  else if(f=='fade'){r=(r-128)*.7+150;g=(g-128)*.7+150;b=(b-128)*.7+152}
+  else if(f=='pop'){r=(r-128)*1.3+128;g=(g-128)*1.3+128;b=(b-128)*1.3+128;const m=(r+g+b)/3;r=m+(r-m)*1.3;g=m+(g-m)*1.3;b=m+(b-m)*1.3}
+  else if(f=='dream'){r=l+(r-l)*.8+28;g=l+(g-l)*.8+22;b=l+(b-l)*.8+34}
+  a[i]=r;a[i+1]=g;a[i+2]=b}
+ x.putImageData(d,0,0)}
+function fx(oc,i){const x=oc.getContext('2d'),w=oc.width,h=oc.height;
+ if(S.grain){const d=x.getImageData(0,0,w,h),a=d.data,amp=S.grain*1.3;let s=1234+i*977;for(let k=0;k<a.length;k+=4){s=(s*1664525+1013904223)>>>0;const n=((s>>>16)/65535-.5)*amp;a[k]+=n;a[k+1]+=n;a[k+2]+=n}x.putImageData(d,0,0)}
+ if(S.vig){const g=x.createRadialGradient(w/2,h/2,Math.min(w,h)*.3,w/2,h/2,Math.max(w,h)*.75);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,'+S.vig/100*.8+')');x.fillStyle=g;x.fillRect(0,0,w,h)}
+ if(S.leak!='none'){const L=S.leak=='l',g=x.createLinearGradient(L?0:w,0,L?w*.65:w*.35,h*.55);g.addColorStop(0,'rgba(255,255,255,.6)');g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,w,h)}}
+function extras(x,G,tc){
+ if(S.holes){x.fillStyle='#171717';for(let y=22;y<G.H-30;y+=38){rr(x,10,y,14,20,4);x.fill();rr(x,G.W-24,y,14,20,4);x.fill()}
+  x.fillStyle=tc;x.globalAlpha=.55;x.font='600 13px '+FONT;x.textAlign='center';x.textBaseline='alphabetic';x.fillText('MONO FILM 400   1   2   3   4',G.W/2,G.H-14);x.globalAlpha=1}
+ x.lineCap=x.lineJoin='round';S.strokes.forEach(s=>{x.strokeStyle=s.c;x.lineWidth=s.w;x.beginPath();s.p.forEach((q,i)=>x[i?'lineTo':'moveTo'](q[0]*G.W,q[1]*G.H));if(s.p.length==1)x.lineTo(s.p[0][0]*G.W+.1,s.p[0][1]*G.H);x.stroke()})}
+const FRX={pink:'#F4C7D3',sky:'#BFD8F2',lav:'#CFC8EE',butter:'#F6E3A8',mint:'#C6E5D3',coral:'#EDAA9C',sage:'#A9BDA5',navy:'#1F2A55',dusk:'#B8B5E0',dawn:'#F6D9C8'},
+GRAD={gold:['#E8C766','#F7E7A6','#C99A2E'],dusk:['#8E9BE8','#F4D9A6'],dawn:['#F7C6D0','#FDEBC8']},
+ORN={none:'無',star:'星星',heart:'愛心',spark:'閃光',flower:'花朵',cloud:'雲朵',snow:'雪花',hallow:'萬聖節',doodle:'手繪線框',check:'格紋',tape:'紙膠帶'},
+GL={star:['star'],heart:['heart'],spark:['spark','star'],flower:['flower'],cloud:['cloud','spark'],snow:['snow','spark'],hallow:['pump','bat','star']};
+function glyph(x,k,X,Y,r,col){x.fillStyle=col;x.strokeStyle=col;x.lineWidth=Math.max(1.5,r/5);x.lineCap='round';
+ if(k=='star')star(x,X,Y,r);else if(k=='heart')heart(x,X,Y,r*.9);
+ else if(k=='spark'){x.beginPath();for(let i=0;i<8;i++){const a=i*Math.PI/4,d=i%2?r*.3:r;x[i?'lineTo':'moveTo'](X+Math.cos(a)*d,Y+Math.sin(a)*d)}x.closePath();x.fill()}
+ else if(k=='flower'){for(let i=0;i<5;i++){const a=i*Math.PI*.4;x.beginPath();x.arc(X+Math.cos(a)*r*.55,Y+Math.sin(a)*r*.55,r*.45,0,7);x.fill()}x.fillStyle='#fff';x.beginPath();x.arc(X,Y,r*.25,0,7);x.fill()}
+ else if(k=='cloud'){[[-.6,.2,.5],[0,0,.65],[.6,.2,.5]].forEach(q=>{x.beginPath();x.arc(X+q[0]*r,Y+q[1]*r,q[2]*r,0,7);x.fill()})}
+ else if(k=='snow'){for(let i=0;i<3;i++){const a=i*Math.PI/3;x.beginPath();x.moveTo(X-Math.cos(a)*r,Y-Math.sin(a)*r);x.lineTo(X+Math.cos(a)*r,Y+Math.sin(a)*r);x.stroke()}}
+ else if(k=='pump'){x.beginPath();x.ellipse(X,Y+r*.1,r,r*.8,0,0,7);x.fill();x.fillRect(X-r*.1,Y-r*.9,r*.2,r*.4);x.strokeStyle='#fff';x.lineWidth=1.2;x.beginPath();x.arc(X,Y+r*.1,r*.45,Math.PI*.6,Math.PI*1.4);x.stroke()}
+ else if(k=='bat'){x.beginPath();x.moveTo(X-r,Y-r*.2);x.quadraticCurveTo(X-r*.5,Y-r*.9,X,Y-r*.1);x.quadraticCurveTo(X+r*.5,Y-r*.9,X+r,Y-r*.2);x.quadraticCurveTo(X+r*.6,Y+r*.5,X,Y+r*.4);x.quadraticCurveTo(X-r*.6,Y+r*.5,X-r,Y-r*.2);x.fill()}}
+function orn(x,G,tc){const o=S.orn;if(o=='none'||o=='check')return;const col=S.ornC=='auto'?tc:S.ornC;
+ if(o=='doodle'){x.strokeStyle=col;x.lineWidth=3;x.lineJoin='round';x.beginPath();const n=160,m=16,w=G.W-2*m,h=G.H-2*m;for(let i=0;i<=n;i++){const tt=i/n*4,sd=Math.floor(tt)%4,u=tt%1,wb=Math.sin(i*1.7)*3+Math.sin(i*.6)*2;let X,Y;
+  if(sd==0){X=m+u*w;Y=m+wb}else if(sd==1){X=G.W-m+wb;Y=m+u*h}else if(sd==2){X=G.W-m-u*w;Y=G.H-m+wb}else{X=m+wb;Y=G.H-m-u*h}x[i?'lineTo':'moveTo'](X,Y)}x.closePath();x.stroke();return}
+ if(o=='tape'){x.globalAlpha=.6;x.fillStyle=col=='#171717'||S.ornC=='auto'?'#D9D9D9':col;G.cells.forEach(c=>[[c.x+8,c.y+6],[c.x+c.w-8,c.y+c.h-6]].forEach(q=>{x.save();x.translate(q[0],q[1]);x.rotate(-.5);x.fillRect(-34,-11,68,22);x.restore()}));x.globalAlpha=1;return}
+ const L=GL[o];if(!L)return;let s=11,k=0;const per=2*(G.W+G.H),m=17;
+ for(let d=0;d<per;d+=56){s=s*16807%2147483647;const r=9+s%7;let u=d,X,Y;if(u<G.W){X=u;Y=m}else if((u-=G.W)<G.H){X=G.W-m;Y=u}else if((u-=G.H)<G.W){X=G.W-u;Y=G.H-m}else{u-=G.W;X=m;Y=G.H-u}
+  glyph(x,L[k++%L.length],X,Y,r,col)}}
+
+const SF={dots:'#EDEDED',stripe:'#FFFFFF',night:'#171717',film:'#171717',gold:'#E6C873'},SEC={dots:'點點紙',stripe:'條紋紙',night:'星夜',film:'底片黑框',gold:'金箔'},COND={film:'成就：連續完成 3 次不同心情的拍貼',gold:'成就：搞怪導演＋盲盒挑戰，用相機拍完四格並完成作品'};
+function pat(x,G){const f=S.frame;
+ if(f=='film'){x.fillStyle='#F5F5F5';for(let y=14;y<G.H;y+=34){rr(x,8,y,16,18,4);x.fill();rr(x,G.W-24,y,16,18,4);x.fill()}}
+ if(S.orn=='check'){x.globalAlpha=.1;x.fillStyle=S.ornC=='auto'?'#000':S.ornC;for(let i=0;i<G.W;i+=28)x.fillRect(i,0,14,G.H);for(let j=0;j<G.H;j+=28)x.fillRect(0,j,G.W,14);x.globalAlpha=1}
+ if(f=='dots'){x.fillStyle='#CFCFCF';for(let i=14;i<G.W;i+=28)for(let j=14;j<G.H;j+=28){x.beginPath();x.arc(i,j,3.5,0,7);x.fill()}}
+ else if(f=='stripe'){x.fillStyle='#E6E6E6';for(let i=0;i<G.W;i+=22)x.fillRect(i,0,9,G.H)}
+ else if(f=='night'){let s=7;x.fillStyle='#F5F5F5';for(let k=0;k<110;k++){s=s*16807%2147483647;const a=s%G.W;s=s*16807%2147483647;x.globalAlpha=.3+(k%4)*.2;x.fillRect(a,s%G.H,2+k%3,2+k%3)}x.globalAlpha=1}}
+function mir(oc){const m=S.mirror;if(m=='none')return;const w=oc.width,h=oc.height,x=oc.getContext('2d'),t=document.createElement('canvas');t.width=w;t.height=h;t.getContext('2d').drawImage(oc,0,0);x.save();
+ if(m=='flip'){x.translate(w,0);x.scale(-1,1);x.drawImage(t,0,0)}
+ else if(m=='symL'){x.translate(w,0);x.scale(-1,1);x.drawImage(t,0,0,w/2,h,0,0,w/2,h)}
+ else if(m=='symR'){x.translate(w,0);x.scale(-1,1);x.drawImage(t,w/2,0,w/2,h,w/2,0,w/2,h)}
+ else if(m=='vert'){x.translate(0,h);x.scale(1,-1);x.drawImage(t,0,0,w,h/2,0,0,w,h/2)}
+ x.restore();
+ if(m=='rgb'){const d=x.getImageData(0,0,w,h),s=new Uint8ClampedArray(d.data),sh=Math.max(2,Math.round(w*.012));for(let y=0;y<h;y++)for(let i=0;i<w;i++){const k=(y*w+i)*4,a=(y*w+Math.max(0,i-sh))*4,b=(y*w+Math.min(w-1,i+sh))*4;d.data[k]=s[a];d.data[k+2]=s[b+2]}x.putImageData(d,0,0)}}
+function beep(){try{const a=beep.c||(beep.c=new(window.AudioContext||window.webkitAudioContext)()),o=a.createOscillator(),g=a.createGain();if(a.state=='suspended')a.resume();o.type='square';o.frequency.value=1200;g.gain.setValueAtTime(.12,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+.12);o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+.12)}catch(e){}}
+function curtain(){const c=$('#curtain');c.classList.remove('run');void c.offsetWidth;c.classList.add('run')}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const ls={get(k,d){try{return JSON.parse(localStorage.getItem(k))||d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}}};
+function star(x,X,Y,r){x.beginPath();for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,d=i%2?r*.45:r;x[i?'lineTo':'moveTo'](X+Math.cos(a)*d,Y+Math.sin(a)*d)}x.closePath();x.fill()}
+function heart(x,X,Y,r){x.beginPath();x.moveTo(X,Y+r*.9);x.bezierCurveTo(X-r*1.6,Y-r*.1,X-r*.7,Y-r*1.1,X,Y-r*.4);x.bezierCurveTo(X+r*.7,Y-r*1.1,X+r*1.6,Y-r*.1,X,Y+r*.9);x.fill()}
+function draw(cv,s,ui){if(ui)saved=false;const G=geo(),x=cv.getContext('2d');cv.width=Math.round(G.W*s);cv.height=Math.round(G.H*s);
+ x.setTransform(s,0,0,s,0,0);const bg=FR[S.frame]||FRX[S.frame]||SF[S.frame],dark=parseInt(bg.slice(1,3),16)<140,tc=dark?'#F5F5F5':'#171717';
+ x.fillStyle=bg;const gd=GRAD[S.frame];if(gd){const g=x.createLinearGradient(0,0,0,G.H);gd.forEach((c,i)=>g.addColorStop(i/(gd.length-1),c));x.fillStyle=g}x.fillRect(0,0,G.W,G.H);pat(x,G);ovDraw(x,G,0);
+ G.cells.forEach((c,i)=>{x.save();rr(x,c.x,c.y,c.w,c.h,S.radius);x.clip();
+  const im=(S.live&&S.clips[i]&&S.clips[i].v.readyState>1)?S.clips[i].v:S.photos[i];
+  if(im){const oc=document.createElement('canvas');oc.width=Math.round(c.w*s);oc.height=Math.round(c.h*s);const o=oc.getContext('2d'),t=S.tf[i],[mx,my]=lim(i),sc=(S.fit?Math.min:Math.max)(oc.width/im.naturalWidth,oc.height/im.naturalHeight)*t.z*(S.liveT==null?1:1+.12*S.liveT),w=im.naturalWidth*sc,h=im.naturalHeight*sc;
+   o.fillStyle=dark?'#3c3c3c':'#F1F1F1';o.fillRect(0,0,oc.width,oc.height);if(im.mirV){o.translate(oc.width,0);o.scale(-1,1)}o.drawImage(im,(oc.width-w)/2+clamp(t.x,mx)*oc.width,(oc.height-h)/2+clamp(t.y,my)*oc.height,w,h);o.setTransform(1,0,0,1,0,0);mir(oc);filt(oc,S.filter);fx(oc,i);x.globalAlpha=S.liveT==null?1:Math.max(0,Math.min(1,S.liveT*5-i));x.drawImage(oc,c.x,c.y,c.w,c.h)}
+  else{x.fillStyle=dark?'#5a5a5a':'#ECECEC';x.fillRect(c.x,c.y,c.w,c.h);x.fillStyle=dark?'#8a8a8a':'#BDBDBD';x.font='700 56px '+FONT;x.textAlign='center';x.textBaseline='middle';x.fillText('0'+(i+1),c.x+c.w/2,c.y+c.h/2)}
+  if(cv.id=='fin'&&S.dv!=null){x.fillStyle='rgba(8,8,8,'+(1-Math.max(0,Math.min(1,S.dv*2.4-i*.3)))+')';x.fillRect(c.x,c.y,c.w,c.h)}
+  x.restore()});
+ if(ui){const c=G.cells[S.sel];x.save();x.strokeStyle=dark?'#fff':'#171717';x.lineWidth=3;x.setLineDash([10,7]);rr(x,c.x+3,c.y+3,c.w-6,c.h-6,S.radius);x.stroke();x.restore()}
+ const fh=G.H-G.fy,ty=G.fy+fh*.38;x.fillStyle=tc;x.textAlign='center';x.textBaseline='middle';
+ let fs=46;x.font='800 '+fs+'px '+FONT;while(x.measureText(S.title).width>G.W-150&&fs>18){fs-=2;x.font='800 '+fs+'px '+FONT}
+ x.fillText(S.title,G.W/2,ty);x.font='400 24px '+FONT;x.globalAlpha=.75;x.fillText(S.date,G.W/2,ty+fs*.5+30);x.globalAlpha=1;
+ if(S.deco!='none'){const pts=[[.12,.38,16],[.88,.38,16],[.2,.72,10],[.8,.72,10]],k=['star','heart'];
+  pts.forEach((p,j)=>{const kind=S.deco=='mix'?k[j%2]:S.deco;(kind=='star'?star:heart)(x,G.W*p[0],G.fy+fh*p[1],p[2]*1.2)});
+  const a=G.cells[0],b=G.cells[3];[[a.x+a.w-8,a.y+6,20,0],[b.x+10,b.y+b.h-6,18,1]].forEach(p=>{x.fillStyle=bg;(S.deco=='heart'||(S.deco=='mix'&&p[3])?heart:star)(x,p[0],p[1],p[2]+6);x.fillStyle=tc;(S.deco=='heart'||(S.deco=='mix'&&p[3])?heart:star)(x,p[0],p[1],p[2])})}orn(x,G,tc);S.stk.forEach((k,i)=>{const w=k.s*G.W,h=w*k.im.naturalHeight/k.im.naturalWidth;x.save();x.translate(k.x*G.W,k.y*G.H);x.rotate((k.a||0)*Math.PI/180);x.drawImage(k.im,-w/2,-h/2,w,h);if(ui&&i==S.ss){x.strokeStyle='#171717';x.setLineDash([8,6]);x.lineWidth=2;x.strokeRect(-w/2,-h/2,w,h)}x.restore()});ovDraw(x,G,1);extras(x,G,tc)}
+
+const MN={happy:'開心',calm:'平靜',love:'戀愛',cool:'酷',nostal:'懷舊'},MNE={happy:'HAPPY',calm:'CALM',love:'LOVE',cool:'COOL',nostal:'NOSTALGIC'};
+const MOODS={happy:{frame:'white',filter:'none',deco:'star',title:'HAPPY DAY',leak:'r',grain:0,vig:0,holes:false},calm:{frame:'mist',filter:'soft',deco:'none',title:'QUIET MOMENT',leak:'none',grain:0,vig:25,holes:false},love:{frame:'tea',filter:'soft',deco:'heart',title:'LOVE NOTE',leak:'l',grain:10,vig:0,holes:false},cool:{frame:'char',filter:'bw',deco:'none',title:'COOL MODE',leak:'none',grain:35,vig:40,holes:true},nostal:{frame:'tea',filter:'retro',deco:'none',title:'REMEMBER WHEN',leak:'none',grain:45,vig:30,holes:true}};
+const MD={leak:'none',grain:0,vig:0,holes:false,deco:'none',orn:'none'};
+Object.assign(MN,{excited:'興奮',silly:'搞怪',dream:'夢幻',summer:'夏日',lazy:'慵懶',night:'深夜',spooky:'萬聖',winter:'冬日'});
+Object.assign(MNE,{excited:'EXCITED',silly:'SILLY',dream:'DREAMY',summer:'SUMMER',lazy:'LAZY',night:'MIDNIGHT',spooky:'SPOOKY',winter:'WINTER'});
+Object.assign(MOODS,{excited:{frame:'butter',deco:'star',title:"LET'S GO!",leak:'r',orn:'spark',filter:'pop'},silly:{frame:'coral',title:'SILLY ME',orn:'flower',filter:'pop'},dream:{frame:'dusk',filter:'dream',title:'DREAMY',orn:'cloud',vig:20},summer:{frame:'sky',filter:'none',title:'SUMMER DAY',orn:'flower',leak:'l'},lazy:{frame:'sage',filter:'fade',title:'LAZY SUNDAY',orn:'cloud'},night:{frame:'navy',filter:'cool',title:'MIDNIGHT',orn:'spark',grain:25,vig:40},spooky:{frame:'dusk',filter:'sepia',title:'TRICK OR TREAT',orn:'hallow',grain:20},winter:{frame:'sky',filter:'cool',title:'WINTER NOTE',orn:'snow'}});
+Object.entries({happy:'spark',calm:'cloud',love:'heart',nostal:'tape'}).forEach(([k,v])=>MOODS[k].orn=v);
+const SCR={sweet:['比愛心','兩人靠肩','對看微笑','捧臉裝可愛'],fun:['做鬼臉','誇張驚訝','假裝睡著','搞怪跳起來'],cool:['冷酷看鏡頭','側臉','墨鏡手勢','雙手抱胸'],friend:['一起比 YA','互相指著對方','勾肩大笑','圍成愛心']};
+const CH=['不准笑','用手遮住一隻眼','只用眼神說話','假裝很驚訝','頭歪向左邊','閉眼 3 秒','假裝在講悄悄話','用嘴型說「茄子」','裝作看到鬼','用手比出相機框','假裝被拍到嚇一跳','眼睛看天花板'];
+const DIRN={sweet:'甜蜜',fun:'搞怪',cool:'酷',friend:'好友',couple:'情侶',family:'家人',cute:'可愛',elegant:'優雅',energy:'活力',film:'電影感'};
+Object.entries({sweet:['手比小愛心','額頭輕靠','捏捏臉頰','嘟嘴飛吻','牽手比愛心','撥頭髮微笑'],fun:['舌頭伸出來','翻白眼','超大笑','學動物','斗雞眼','對鏡頭親親','雙手扮鬼臉','假裝被嚇到'],cool:['抬下巴看上方','手插口袋','低頭瞇眼','撥頭髮','轉身回頭看','壓低帽簷','兩指指向鏡頭','側身雙手交叉'],friend:['背靠背','互相扮鬼臉','搭肩比愛心','一起往上跳','疊手','互相按臉','同時比讚','一起大笑'],couple:['額頭相貼','牽手比愛心','擁抱','互看微笑','親臉頰','背後擁抱','比半邊愛心','靠肩看鏡頭'],family:['全員大笑','比數字合照','抱抱','舉手歡呼','擠在一起','輪流比讚','集體鬼臉','手搭肩'],cute:['貓咪手','比兔耳朵','雙手捧臉','嘟嘴','小花手勢','鼓臉頰','歪頭眨眼','雙手比愛心耳朵'],elegant:['微笑看側邊','手輕托下巴','回眸','低頭淺笑','手撐臉頰','看向遠方','雙手交疊','輕輕撥髮'],energy:['跳起來','比勝利手勢','加油打氣','雙手舉高','比劃肌肉','歡呼','擊掌','原地轉圈'],film:['看向遠方沉思','閉眼仰頭','遮住半張臉','低頭看手','偷瞄鏡頭','側臉背光','用手框住臉','靠牆慵懶站姿']}).forEach(([k,a])=>SCR[k]=(SCR[k]||[]).concat(a));
+function roll(){const a=[...SCR[S.dir]];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}S.sc=a.slice(0,4);S.scD=S.dir}
+function getSc(){if(!S.sc||S.scD!=S.dir)roll();return S.sc}
+/* ---------- navigation ---------- */
+function go(p){if(dvT){cancelAnimationFrame(dvT.id);dvT=null;S.dv=null;$('#fin').style.transform='none';$('#devHint').hidden=true}if(S.live){livePlay(false);$('#lcP').textContent='播放 Live 拍貼'}if(lv)liveStop();$('#lvP').textContent='預覽 Living Film';if(page=='source'&&p!='source')camStop();
+ page=p;$$('.pg').forEach(e=>e.classList.toggle('on',e.id==p));$('#step').textContent=STEPS[p];scrollTo(0,0);
+ if(p=='source'){renderSlots();if($('.tabs .on').dataset.tab=='cam')camStart()}
+ if(p=='layout')curtain();if(p=='wall')wallR();if(p=='receipt'){$('#memo').value=memo;rcDraw()}if(p=='edit')sync();if(p=='result'){$('#lcP').hidden=$('#lcD').hidden=!S.clips.some(Boolean);develop()}syncBtns()}
+function syncBtns(){$$('[data-k]').forEach(b=>b.classList.toggle('on',S[b.dataset.k]==b.dataset.v));$('#hl').classList.toggle('on',!!S.holes);$('#blT').textContent='盲盒挑戰：'+(S.blind?'開':'關');$('#blT').classList.toggle('on',S.blind);$('#mirT').textContent='鏡像拍攝：'+(S.camMirror?'開':'關');$('#mirT').classList.toggle('on',S.camMirror);
+ $$('[data-mood]').forEach(b=>b.classList.toggle('on',S.mood==b.dataset.mood));$('#script').textContent='導演腳本　'+getSc().map((q,i)=>(i+1)+'. '+q).join('　');$('#recT').textContent='Live 記錄：'+(S.rec?'開':'關');$('#recT').classList.toggle('on',S.rec);$('#fitA').classList.toggle('on',S.fit);$('#fitB').classList.toggle('on',!S.fit)}
+document.addEventListener('click',e=>{
+ const g=e.target.closest('[data-go]');if(g){const t=g.dataset.go;if(t=='edit'&&page=='source'&&!ready())return;go(t)}
+ const k=e.target.closest('[data-k]');if(k){S[k.dataset.k]=k.dataset.v;syncBtns();if(page=='edit')sync()}
+ const tp=e.target.closest('[data-tp]');if(tp){$$('[data-tp]').forEach(b=>b.classList.toggle('on',b==tp));$$('.tp').forEach(p=>p.classList.toggle('on',tp.dataset.tp.split(',').includes(p.id)))}
+ const tb=e.target.closest('[data-tab]');if(tb)setTab(tb.dataset.tab);
+ const md=e.target.closest('[data-mood]');if(md){S.mood=md.dataset.mood;Object.assign(S,MD,MOODS[S.mood]);syncBtns();if(page=='edit')sync();toast('已套用「'+MN[S.mood]+'」心情相框')}
+ const pk=e.target.closest('[data-pick]');if(pk){pickT=null;$('#fi').click()}});
+function ready(){const miss=S.photos.map((p,i)=>p?0:i+1).filter(Boolean);if(miss.length){toast('還缺 '+miss.length+' 張，請補齊第 '+miss.join('、')+' 格');return false}return true}
+$('#toEd').onclick=()=>{if(ready())go('edit')};
+
+/* ---------- source: slots & upload ---------- */
+let pickT=null,mode='cam';
+function setTab(t){mode=t;$$('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab==t));$('#pcam').hidden=t!='cam';$('#pup').hidden=t!='up';
+ if(t=='cam')camStart();else camStop();renderSlots()}
+function renderSlots(){const el=$('#slots');el.innerHTML=S.photos.map((p,i)=>`<div class="slot"><div class="ph">${S.clips[i]?`<video src="${S.clips[i].u}" autoplay loop muted playsinline style="width:100%;height:100%;object-fit:cover${S.clips[i].mir?';transform:scaleX(-1)':''}"></video>`:p?`<img src="${p.src}" alt="第${i+1}格">`:i+1}</div><div class="a">${
+ mode=='cam'?`<button data-a="shoot" data-i="${i}">${p?'重拍':'拍攝'}</button>`:p?`<button data-a="rep" data-i="${i}">替換</button><button data-a="del" data-i="${i}">移除</button>`:`<button data-a="rep" data-i="${i}">選擇</button>`}</div></div>`).join('');
+ const m=S.photos.filter(p=>!p).length;$('#need').textContent=m?'還缺 '+m+' 格，補齊後才能進入編輯。':'四格都準備好了。'}
+$('#slots').onclick=e=>{const b=e.target.closest('[data-a]');if(!b)return;const i=+b.dataset.i,a=b.dataset.a;
+ if(a=='del'){freeSlot(i);S.photos[i]=null;S.tf[i]={z:1,x:0,y:0};renderSlots()}
+ else if(a=='rep'){pickT=i;$('#fi').click()}
+ else if(a=='shoot')shoot([i])};
+function loadImg(src){return new Promise((ok,no)=>{const im=new Image();im.onload=()=>ok(im);im.onerror=no;im.src=src})}
+const MAXB=15*1024*1024,MAXD=2400;
+async function prep(f,alpha){if(f.size>MAXB){toast('檔案超過 15 MB：'+f.name);return null}const u=URL.createObjectURL(f);let im;
+ try{im=await loadImg(u)}catch(e){URL.revokeObjectURL(u);throw e}
+ const w=im.naturalWidth,h=im.naturalHeight,m=Math.max(w,h);
+ if(w*h>40e6){URL.revokeObjectURL(u);toast('解析度過大（上限約 4000 萬像素）：'+f.name);return null}
+ if(m>MAXD){const k=MAXD/m,c=document.createElement('canvas');c.width=Math.round(w*k);c.height=Math.round(h*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);
+  const bl=await new Promise(r=>c.toBlob(r,alpha&&f.type!='image/jpeg'?'image/png':'image/jpeg',.9)),u2=URL.createObjectURL(bl);im=await loadImg(u2);im.u=u2}else im.u=u;
+ if(m<500)toast('照片解析度偏低（'+w+'×'+h+'），輸出可能較模糊');return im}
+function freeSlot(i){const p=S.photos[i];if(p&&p.u)URL.revokeObjectURL(p.u);const c=S.clips[i];if(c){c.v.pause();c.v.removeAttribute('src');c.v.load();URL.revokeObjectURL(c.u)}S.clips[i]=null}
+function freeAll(){for(let i=0;i<4;i++)freeSlot(i);S.stk.forEach(k=>k.im.u&&URL.revokeObjectURL(k.im.u));if(S.ov&&S.ov.im.u)URL.revokeObjectURL(S.ov.im.u)}
+function setPhoto(i,im){freeSlot(i);S.photos[i]=im;S.tf[i]={z:1,x:0,y:0};saved=false}
+$('#fi').onchange=async e=>{const files=[...e.target.files];e.target.value='';let bad=0,full=0;
+ for(const f of files){if(!/^image\/(jpeg|png|webp)$/.test(f.type)){bad++;continue}
+  let i=pickT!==null?pickT:S.photos.findIndex(p=>!p);if(i<0){full++;continue}
+  try{const im=await prep(f);if(im)setPhoto(i,im);else bad++}catch{bad++}
+  if(pickT!==null)break}
+ pickT=null;renderSlots();
+ if(bad)toast(bad+' 個檔案無法使用，請選擇 JPG、PNG 或 WebP 圖片');else if(full)toast('四格已滿，請先移除或替換再上傳')};
+
+/* ---------- camera ---------- */
+$('#recT').onclick=()=>{S.rec=!S.rec;syncBtns()};
+$('#blT').onclick=()=>{S.blind=!S.blind;S.chal=0;syncBtns();toast(S.blind?'盲盒挑戰開啟：每格附隨機挑戰':'盲盒挑戰已關閉')};
+$('#mirT').onclick=()=>{S.camMirror=!S.camMirror;$('#vid').style.transform=S.camMirror?'scaleX(-1)':'none';syncBtns()};
+let stream=null,busy=false,cancel=false,shootId=0;const POSES=['比愛心','看向鏡頭，微笑','比 YA','假裝很酷','歪頭看旁邊','搞怪鬼臉','捂嘴偷笑','手托下巴','閉眼享受'];
+async function camStart(){if(stream)return;cancel=false;
+ try{if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw{name:'NoApi'};
+  stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:1280},height:{ideal:960}},audio:false});
+  const v=$('#vid');v.srcObject=stream;await v.play();$('#camErr').hidden=true;$('#camUI').hidden=false}
+ catch(err){stream=null;$('#camUI').hidden=true;$('#camErr').hidden=false;
+  $('#camMsg').textContent={NotAllowedError:'相機權限被拒絕。請在瀏覽器網址列允許相機，或改用照片上傳。',NotFoundError:'找不到可用的鏡頭。請改用照片上傳。',NotReadableError:'鏡頭正被其他程式使用。關閉該程式後重試，或改用照片上傳。',NoApi:'此瀏覽器或連線環境不支援相機（需要 HTTPS）。請改用照片上傳。'}[err.name]||'相機無法啟動。請改用照片上傳。'}}
+function camStop(){cancel=true;shootId++;busy=false;$('#pose').textContent='';if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}$('#cd').hidden=true}
+$('#retry').onclick=camStart;
+async function shoot(list){if(busy||!stream)return;busy=true;const sid=++shootId;
+ for(const i of list){$('#pose').textContent='第 '+(i+1)+' 格：'+getSc()[i]+(S.blind?'　挑戰：'+CH[Math.floor(Math.random()*CH.length)]:'');let r=null;for(let n=+S.cd;n>0;n--){if(n==2&&S.rec)r=recStart();if(sid!=shootId)break;$('#cd').textContent=n;$('#cd').hidden=false;await sleep(1000)}
+  $('#cd').hidden=true;$('#pose').textContent='';if(sid!=shootId){recStop(r);break}
+  const v=$('#vid'),c=document.createElement('canvas');c.width=v.videoWidth;c.height=v.videoHeight;const x=c.getContext('2d');if(S.camMirror){x.translate(c.width,0);x.scale(-1,1)}x.drawImage(v,0,0);
+  setPhoto(i,await loadImg(c.toDataURL('image/jpeg',.92)));if(S.blind)S.chal++;const f=$('#fl');f.classList.remove('go');void f.offsetWidth;f.classList.add('go');beep();await sleep(1200);const bl=await recStop(r);if(bl)await mkClip(i,bl);renderSlots();await sleep(1000)}
+ if(sid==shootId)busy=false;$('#cd').hidden=true;$('#pose').textContent=''}
+$('#shootAll').onclick=()=>{const l=S.photos.map((p,i)=>p?-1:i).filter(i=>i>=0);l.length?shoot(l):toast('四格都拍好了，點縮圖下方「重拍」可單張重來')};
+
+/* ---------- editor ---------- */
+const cv=$('#cv');let drag=null;
+function sync(){const t=S.tf[S.sel];$('#zoom').value=t.z;$('#selTxt').textContent='目前選取：第 '+(S.sel+1)+' 格';$('#gap').value=S.gap;$('#rad').value=S.radius;$('#gr').value=S.grain;$('#vg').value=S.vig;$('#pw').value=S.penw;
+ if(document.activeElement!=$('#ttl'))$('#ttl').value=S.title;if(document.activeElement!=$('#dt'))$('#dt').value=S.date;secUI();thumbs();stkUI();syncBtns();draw(cv,1,true)}
+$('#gap').oninput=e=>{S.gap=+e.target.value;sync()};
+$('#rad').oninput=e=>{S.radius=+e.target.value;sync()};
+$('#ttl').oninput=e=>{S.title=e.target.value;draw(cv,1,true)};
+$('#dt').oninput=e=>{S.date=e.target.value;draw(cv,1,true)};
+$('#zoom').oninput=e=>{const t=S.tf[S.sel];t.z=+e.target.value;if(S.photos[S.sel]){const[a,b]=lim(S.sel);t.x=clamp(t.x,a);t.y=clamp(t.y,b)}draw(cv,1,true)};
+$('#rst').onclick=()=>{S.tf[S.sel]={z:1,x:0,y:0};sync()};
+const pt=e=>{const r=cv.getBoundingClientRect(),G=geo();return{x:(e.clientX-r.left)/r.width*G.W,y:(e.clientY-r.top)/r.height*G.H}};
+const fp=e=>{const q=pt(e),G=geo();return[q.x/G.W,q.y/G.H]};
+cv.onpointerdown=e=>{if(S.penOn){S.strokes.push({c:S.pen,w:S.penw,p:[fp(e)]});drag={pen:1};cv.setPointerCapture(e.pointerId);draw(cv,1,true);return}{const q=pt(e),G=geo();for(let j=S.stk.length-1;j>=0;j--){const k=S.stk[j],w=k.s*G.W,h=w*k.im.naturalHeight/k.im.naturalWidth;const dx=q.x-k.x*G.W,dy=q.y-k.y*G.H,ra=-(k.a||0)*Math.PI/180;if(Math.abs(dx*Math.cos(ra)-dy*Math.sin(ra))<w/2&&Math.abs(dx*Math.sin(ra)+dy*Math.cos(ra))<h/2){S.ss=j;drag={stk:j,x:q.x,y:q.y};cv.setPointerCapture(e.pointerId);sync();return}}}const p=pt(e),i=geo().cells.findIndex(c=>p.x>=c.x&&p.x<=c.x+c.w&&p.y>=c.y&&p.y<=c.y+c.h);if(i<0)return;S.sel=i;drag={i,x:p.x,y:p.y};cv.setPointerCapture(e.pointerId);cv.style.cursor='grabbing';sync()};
+cv.onpointermove=e=>{if(!drag)return;if(drag.stk!=null){const q=pt(e),G=geo(),k=S.stk[drag.stk];k.x+=(q.x-drag.x)/G.W;k.y+=(q.y-drag.y)/G.H;drag.x=q.x;drag.y=q.y;draw(cv,1,true);return}if(drag.pen){S.strokes[S.strokes.length-1].p.push(fp(e));draw(cv,1,true);return}const p=pt(e),i=drag.i;
+ if(S.photos[i]){const c=geo().cells[i],[a,b]=lim(i),t=S.tf[i];t.x=clamp(t.x+(p.x-drag.x)/c.w,a);t.y=clamp(t.y+(p.y-drag.y)/c.h,b);draw(cv,1,true)}
+ drag.x=p.x;drag.y=p.y};
+cv.onpointerup=cv.onpointercancel=()=>{drag=null;cv.style.cursor='grab'};
+$('#sur').onclick=()=>{const r=a=>a[Math.floor(Math.random()*a.length)];
+ S.frame=r([...Object.keys(FR),...Object.keys(FRX).filter(k=>!k.startsWith('idol'))]);S.filter=r(['none','bw','retro','soft','cool','sepia','fade','pop','dream']);S.deco=r(['star','heart','mix']);S.gap=8+Math.floor(Math.random()*40);S.radius=Math.floor(Math.random()*30);S.grain=r([0,0,20,40]);S.vig=r([0,30,60]);S.leak=r(['none','none','l','r']);S.holes=Math.random()<.4;S.orn=r(['none','star','heart','spark','flower','cloud','tape','doodle','check']);sync();toast('Surprise Film！不滿意可以再抽一次')};
+
+$('#gr').oninput=e=>{S.grain=+e.target.value;draw(cv,1,true)};
+$('#vg').oninput=e=>{S.vig=+e.target.value;draw(cv,1,true)};
+$('#pw').oninput=e=>{S.penw=+e.target.value};
+$('#hl').onclick=()=>{S.holes=!S.holes;sync()};
+$('#undo').onclick=()=>{S.strokes.pop();sync()};
+$('#clr').onclick=()=>{S.strokes=[];sync()};
+/* ---------- result ---------- */
+$('#dl').onclick=()=>{const c=document.createElement('canvas');draw(c,2,false);
+ c.toBlob(b=>{if(!b){toast('匯出失敗，請再試一次');return}const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='mono-film-'+Date.now()+'.png';document.body.appendChild(a);a.click();a.remove();saved=true;toast('已下載 PNG');markDone()},'image/png')};
+$('#shr').onclick=()=>{const c=document.createElement('canvas');draw(c,2,false);c.toBlob(async b=>{const f=new File([b],'mono-film.png',{type:'image/png'});try{if(navigator.canShare&&navigator.canShare({files:[f]}))await navigator.share({files:[f],title:'MONO FILM'});else toast('此裝置不支援直接分享，請改用下載')}catch(e){}})};
+$('#again').onclick=()=>{if(!saved&&!confirm('尚未下載的作品將會消失，確定重新製作？'))return;freeAll();S=fresh();memo='';saved=true;go('home')};
+/* ---------- blind box / living film / receipt / wall ---------- */
+function secUI(){const u=ls.get('mf_secrets',[]),ks=Object.keys(SEC);$('#sec').innerHTML=ks.filter(k=>u.includes(k)).map(k=>`<button class="ft" data-k="frame" data-v="${k}" aria-label="${SEC[k]}"><img src="${frameThumb(k)}" alt=""></button>`).join('');
+ $('#secT').textContent='隱藏相框 '+u.length+'／'+ks.length+(u.length<ks.length?'　未解鎖：'+ks.filter(k=>!u.includes(k)).map(k=>SEC[k]+'（'+(COND[k]||'盲盒開出')+'）').join('；'):'　全部收集完成')}
+const FT={};function frameThumb(k){if(FT[k])return FT[k];const b=S;S=fresh();S.frame=k;S.layout='grid';const c=document.createElement('canvas');draw(c,.06,false);S=b;return FT[k]=c.toDataURL()}
+function markDone(){if(S.counted)return;S.counted=true;const h=ls.get('mf_hist',[]);h.push({m:S.mood||'',d:S.dir,b:S.blind,c:S.chal});while(h.length>10)h.shift();ls.set('mf_hist',h);
+ const u=ls.get('mf_secrets',[]),n=[],l3=h.slice(-3);
+ if(!u.includes('film')&&l3.length==3&&l3.every(x=>x.m)&&new Set(l3.map(x=>x.m)).size==3)n.push('film');
+ if(!u.includes('gold')&&S.dir=='fun'&&S.blind&&S.chal>=4)n.push('gold');
+ if(n.length){ls.set('mf_secrets',u.concat(n));toast('成就達成！解鎖隱藏相框：'+n.map(k=>SEC[k]).join('、'))}}
+$('#box').onclick=()=>{const u=ls.get('mf_secrets',[]),r=Math.random(),rare=S.chal>=4,t=rare?[.25,.6]:[.55,.85],k=r<t[0]?'dots':r<t[1]?'stripe':'night';
+ if(!u.includes(k)){u.push(k);ls.set('mf_secrets',u)}S.frame=k;sync();toast('盲盒開出：'+SEC[k]+(rare?'（挑戰加成）':''))};
+let lv=null,memo='';
+function liveStop(){if(lv){cancelAnimationFrame(lv.id);lv=null}S.liveT=null;if(page=='result')draw($('#fin'),1,false)}
+function liveRun(cv,dur,end,loop){const t0=performance.now();lv={};const step=now=>{const t=(now-t0)/dur;if(t>=1&&!loop){S.liveT=1;draw(cv,1,false);S.liveT=null;lv=null;end&&end();return}S.liveT=Math.min(1,(loop?t%1:t)*1.25);draw(cv,1,false);lv.id=requestAnimationFrame(step)};lv.id=requestAnimationFrame(step)}
+$('#lvP').onclick=()=>{if(lv){liveStop();$('#lvP').textContent='預覽 Living Film';return}$('#lvP').textContent='停止預覽';liveRun($('#fin'),4000,null,true)};
+$('#lvD').onclick=()=>{const c=document.createElement('canvas'),mt=window.MediaRecorder&&['video/webm;codecs=vp9','video/webm','video/mp4'].find(t=>MediaRecorder.isTypeSupported(t));
+ if(!mt||!c.captureStream){toast('此瀏覽器不支援錄製動態，請改用 PNG 下載');return}
+ if(lv)liveStop();draw(c,1,false);const rec=new MediaRecorder(c.captureStream(30),{mimeType:mt}),ch=[];rec.ondataavailable=e=>e.data.size&&ch.push(e.data);
+ rec.onstop=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(ch,{type:mt}));a.download='mono-film-living.'+(mt.includes('mp4')?'mp4':'webm');document.body.appendChild(a);a.click();a.remove();$('#lvD').disabled=false;toast('Living Film 已下載')};
+ $('#lvD').disabled=true;toast('錄製中，約 4 秒…');rec.start();liveRun(c,4000,()=>setTimeout(()=>rec.stop(),200),false)};
+function rcDraw(){const cv=$('#rc'),x=cv.getContext('2d'),W=520,H=800,L=44,R=W-L;cv.width=W*2;cv.height=H*2;x.setTransform(2,0,0,2,0,0);
+ let h=0;for(const ch of S.title+S.date+S.layout)h=(h*31+ch.charCodeAt(0))>>>0;
+ x.fillStyle='#FAFAFA';x.beginPath();x.moveTo(0,0);x.lineTo(W,0);for(let i=0;i<=26;i++)x.lineTo(W-i*W/26,H-(i%2?0:10));x.closePath();x.fill();
+ const ln=y=>{x.save();x.setLineDash([5,4]);x.strokeStyle='#888';x.beginPath();x.moveTo(L,y);x.lineTo(R,y);x.stroke();x.restore()},row=(a,b,y,bold)=>{x.font=(bold?'700 ':'400 ')+'16px monospace';x.textAlign='left';x.fillText(a,L,y);x.textAlign='right';x.fillText(b,R,y)};
+ x.fillStyle='#171717';x.textAlign='center';x.font='700 28px monospace';x.fillText('MONO FILM STUDIO',W/2,64);x.font='13px monospace';x.fillText('*** PHOTO BOOTH RECEIPT ***',W/2,92);ln(116);
+ row(S.date,'NO.'+String(h).slice(-6).padStart(6,'0'),146);ln(168);
+ const it=[['PHOTO','x4'],['LAYOUT',{strip:'STRIP',grid:'2x2',wide:'WIDE'}[S.layout]],['FILTER',({none:'ORIGINAL',bw:'B&W',retro:'RETRO',soft:'SOFT'}[S.filter]||S.filter.toUpperCase())],['FRAME',(SEC[S.frame]?'SECRET ':'')+S.frame.toUpperCase()],['MOOD',MNE[S.mood]||'-'],['EFFECT',S.mirror.toUpperCase()]];
+ it.forEach((r,i)=>row(r[0],r[1],200+i*30));ln(394);
+ S.photos.forEach((im,i)=>{if(!im)return;const t=document.createElement('canvas');t.width=t.height=196;const sc=Math.max(196/im.naturalWidth,196/im.naturalHeight);t.getContext('2d').drawImage(im,(196-im.naturalWidth*sc)/2,(196-im.naturalHeight*sc)/2,im.naturalWidth*sc,im.naturalHeight*sc);filt(t,'bw');x.drawImage(t,L+i*110,414,98,98)});
+ ln(534);row('TOTAL','PRICELESS',566,true);ln(590);
+ const m=memo||'今天也是很棒的一天';let fs=18;do{x.font=fs+'px '+FONT;fs--}while(x.measureText(m).width>R-L&&fs>10);x.fillStyle='#171717';x.textAlign='center';x.fillText(m,W/2,634);
+ let s=h||1,px=L;while(px<R-4){s=(s*1664525+1013904223)>>>0;const w=1+s%4;if((s>>8)&1)x.fillRect(px,664,w,56);px+=w+1}
+ x.font='12px monospace';x.fillText('THANK YOU  /  SEE YOU AGAIN',W/2,748)}
+$('#memo').oninput=e=>{memo=e.target.value;rcDraw()};
+$('#rcD').onclick=()=>$('#rc').toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='mono-film-receipt.png';document.body.appendChild(a);a.click();a.remove();toast('已下載收據')});
+$('#wallS').onclick=()=>{const c=document.createElement('canvas');draw(c,1,false);const o=document.createElement('canvas');o.width=480;o.height=Math.round(c.height*480/c.width);o.getContext('2d').drawImage(c,0,0,o.width,o.height);
+ const w=ls.get('mf_wall',[]);w.push({id:Date.now(),img:o.toDataURL('image/jpeg',.8),title:S.title,date:S.date,mood:MN[S.mood]||'',memo:memo});while(w.length>20)w.shift();
+ const okk=ls.set('mf_wall',w);toast(okk?'已收進底片牆（'+w.length+'/20）':'儲存空間不足，請先刪除底片牆舊作');if(okk)markDone()};
+let wm='grid',wf='',wlt='day';
+function wallR(){const all=ls.get('mf_wall',[]),ms=[...new Set(all.map(x=>x.mood).filter(Boolean))];
+ $('#wfi').innerHTML=['',...ms].map(m=>`<button class="opt${wf==m?' on':''}" data-wf="${esc(m)}">${m?esc(m):'全部'}</button>`).join('');
+ $('#wmo').innerHTML=[['grid','網格'],['museum','展覽館']].map(([k,v])=>`<button class="opt${wm==k?' on':''}" data-wm="${k}">${v}</button>`).join('')+(wm=='museum'?[['day','日光'],['warm','暖燈'],['spot','聚光']].map(([k,v])=>`<button class="opt${wlt==k?' on':''}" data-wl="${k}">燈光：${v}</button>`).join(''):'');
+ const w=all.filter(x=>!wf||x.mood==wf).reverse(),el=$('#wl');el.className='wm-'+wm+' lt-'+wlt;
+ el.innerHTML=w.length?w.map((x,i)=>`<figure data-id="${x.id}" style="--r:${(i%3-1)*.8}deg;--y:${(i*37%5)*12}px"><img src="${x.img}" alt="${esc(x.title)}"><figcaption>${esc(x.date)}${x.mood?'｜'+esc(x.mood):''}</figcaption></figure>`).join(''):'<p class="sub">還沒有作品。完成一張拍貼後，在成品頁按「收進底片牆」。</p>'}
+function showW(id){const x=ls.get('mf_wall',[]).find(v=>v.id==id);if(!x)return;$('#wdi').src=x.img;$('#wdt').textContent=x.title;$('#wdp').textContent=x.date+(x.mood?'｜心情：'+x.mood:'');$('#wdm').textContent=x.memo?'「'+x.memo+'」':'';$('#wdD').href=x.img;$('#wdD').download='mono-film-'+x.id+'.jpg';$('#wd').hidden=false;$('#wd').dataset.id=id}
+$('#wl').onclick=e=>{const f=e.target.closest('figure');if(f)showW(+f.dataset.id)};
+$('#wl').onmousemove=e=>{const r=e.currentTarget.getBoundingClientRect();e.currentTarget.style.setProperty('--mx',(e.clientX-r.left)/r.width*100+'%')};
+$('#wfi').onclick=e=>{const b=e.target.closest('[data-wf]');if(b){wf=b.dataset.wf;wallR()}};
+$('#wmo').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.wm)wm=b.dataset.wm;if(b.dataset.wl)wlt=b.dataset.wl;wallR()};
+$('#wdC').onclick=()=>$('#wd').hidden=true;
+$('#wdX').onclick=()=>{if(!confirm('刪除這張作品？'))return;ls.set('mf_wall',ls.get('mf_wall',[]).filter(x=>x.id!=$('#wd').dataset.id));$('#wd').hidden=true;wallR()};
+$('#wallC').onclick=()=>{if(confirm('確定清空底片牆？')){ls.set('mf_wall',[]);wallR()}};
+/* ---------- swap / idol / fit ---------- */
+let dg=null;const th$=$('#th');
+function thumbs(){th$.innerHTML=S.photos.map((p,i)=>`<div class="th${i==S.sel?' on':''}" data-i="${i}">${p?`<img src="${p.src}" alt="">`:''}<b>${i+1}</b></div>`).join('')}
+th$.onpointerdown=e=>{const t=e.target.closest('.th');if(!t)return;dg=t;t.classList.add('drag');t.setPointerCapture(e.pointerId)};
+th$.onpointermove=e=>{if(!dg)return;$$('.th').forEach(x=>x.classList.remove('over'));const o=document.elementFromPoint(e.clientX,e.clientY),t=o&&o.closest('.th');if(t&&t!==dg)t.classList.add('over')};
+th$.onpointerup=e=>{if(!dg)return;const o=document.elementFromPoint(e.clientX,e.clientY),t=o&&o.closest('.th'),a=+dg.dataset.i;dg=null;
+ if(t&&+t.dataset.i!==a){const b=+t.dataset.i;[S.photos[a],S.photos[b]]=[S.photos[b],S.photos[a]];[S.tf[a],S.tf[b]]=[S.tf[b],S.tf[a]];[S.clips[a],S.clips[b]]=[S.clips[b],S.clips[a]];S.sel=b;toast('已將第 '+(a+1)+' 格與第 '+(b+1)+' 格互換')}else S.sel=a;sync()};
+th$.onpointercancel=()=>{dg=null;thumbs()};
+$('#fitA').onclick=()=>{S.fit=true;sync()};$('#fitB').onclick=()=>{S.fit=false;sync()};
+$('#ovf').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;if(!/^image\//.test(f.type)){toast('請選擇圖片檔');return}try{const im=await prep(f,1);if(!im)return;if(S.ov&&S.ov.im.u)URL.revokeObjectURL(S.ov.im.u);S.ov={im,s:1,x:0,y:0,o:1,top:true,key:false,fill:false};sync();toast('已加入自訂相框，可在下方調整')}catch(err){toast('圖片讀取失敗')}};
+$('#ovx').onclick=()=>{if(S.ov&&S.ov.im.u)URL.revokeObjectURL(S.ov.im.u);S.ov=null;sync()};
+/* ---------- live clips / stickers ---------- */
+const MT=()=>window.MediaRecorder&&['video/webm;codecs=vp9','video/webm','video/mp4'].find(m=>MediaRecorder.isTypeSupported(m));
+function recStart(){try{const mt=MT();if(!mt||!stream)return null;const r=new MediaRecorder(stream,{mimeType:mt});r.ch=[];r.mt=mt;r.ondataavailable=e=>e.data.size&&r.ch.push(e.data);r.start();return r}catch(e){return null}}
+function recStop(r){return new Promise(ok=>{if(!r||r.state=='inactive'){ok(null);return}r.onstop=()=>ok(new Blob(r.ch,{type:r.mt}));r.stop()})}
+function mkClip(i,bl){return new Promise(ok=>{const v=document.createElement('video'),u=URL.createObjectURL(bl);v.muted=true;v.loop=true;v.playsInline=true;v.mirV=S.camMirror;
+ Object.defineProperty(v,'naturalWidth',{get:()=>v.videoWidth});Object.defineProperty(v,'naturalHeight',{get:()=>v.videoHeight});
+ v.onloadeddata=()=>{S.clips[i]={v,u,mir:S.camMirror};v.play().catch(()=>{});ok()};v.onerror=()=>ok();v.src=u;setTimeout(ok,2500)})}
+let lp=null;
+function livePlay(on){if(lp){cancelAnimationFrame(lp);lp=null}S.live=on;S.clips.forEach(c=>{if(c){c.v.currentTime=0;c.v.play().catch(()=>{})}});
+ if(on){const f=()=>{draw($('#fin'),1,false);lp=requestAnimationFrame(f)};f()}else if(page=='result')draw($('#fin'),1,false)}
+$('#lcP').onclick=()=>{const on=!S.live;livePlay(on);$('#lcP').textContent=on?'停止 Live':'播放 Live 拍貼'};
+$('#lcD').onclick=()=>{const c=document.createElement('canvas'),mt=MT();if(!mt||!c.captureStream){toast('此瀏覽器不支援錄製動態，請改用 PNG 下載');return}
+ if(S.live)livePlay(false);S.live=true;S.clips.forEach(k=>{if(k){k.v.currentTime=0;k.v.play().catch(()=>{})}});draw(c,1,false);
+ const rec=new MediaRecorder(c.captureStream(30),{mimeType:mt}),ch=[];rec.ondataavailable=e=>e.data.size&&ch.push(e.data);
+ rec.onstop=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(ch,{type:mt}));a.download='mono-film-live.'+(mt.includes('mp4')?'mp4':'webm');document.body.appendChild(a);a.click();a.remove();S.live=false;$('#lcD').disabled=false;draw($('#fin'),1,false);toast('Live 整張已下載')};
+ $('#lcD').disabled=true;toast('錄製 Live 拍貼中，約 4 秒…');rec.start();const t0=performance.now(),f=()=>{draw(c,1,false);if(performance.now()-t0<4000)requestAnimationFrame(f);else rec.stop()};f()};
+function stkUI(){ovUI();const k=S.stk[S.ss];$('#stkT').textContent=S.stk.length?'已加入 '+S.stk.length+' 個貼圖，目前選取第 '+(S.ss+1)+' 個（可在預覽圖上拖曳）':'尚未加入貼圖';if(k){$('#stz').value=k.s*100;$('#sta').value=k.a||0}}
+$('#stkA').onclick=()=>$('#stkF').click();
+$('#stkF').onchange=async e=>{for(const f of e.target.files){if(!/^image\//.test(f.type))continue;try{const im=await prep(f,1);if(!im)continue;S.stk.push({im,x:.5,y:.5,s:.25,a:0});S.ss=S.stk.length-1}catch(err){toast('圖片讀取失敗')}}e.target.value='';sync()};
+$('#stz').oninput=e=>{const k=S.stk[S.ss];if(k){k.s=+e.target.value/100;draw(cv,1,true)}};
+$('#stkD').onclick=()=>{if(S.stk[S.ss]){const d=S.stk[S.ss].im.u;d&&URL.revokeObjectURL(d);S.stk.splice(S.ss,1);S.ss=S.stk.length-1;sync()}};
+/* ---------- overlay / develop / secret message ---------- */
+function keyW(im){const c=document.createElement('canvas');c.width=im.naturalWidth;c.height=im.naturalHeight;const x=c.getContext('2d');x.drawImage(im,0,0);const d=x.getImageData(0,0,c.width,c.height),a=d.data;for(let i=0;i<a.length;i+=4){const m=Math.min(a[i],a[i+1],a[i+2]);if(m>235)a[i+3]=0;else if(m>200)a[i+3]=a[i+3]*(235-m)/35}x.putImageData(d,0,0);return c}
+function ovDraw(x,G,top){const o=S.ov;if(!o||!!o.top!=!!top)return;const src=o.key?(o.kc||(o.kc=keyW(o.im))):o.im,iw=src.width,ih=src.height;let w,h;
+ if(o.fill){w=G.W*o.s;h=G.H*o.s}else{const k=Math.min(G.W/iw,G.H/ih)*o.s;w=iw*k;h=ih*k}
+ x.save();x.globalAlpha=o.o;x.drawImage(src,G.W/2+o.x*G.W-w/2,G.H/2+o.y*G.H-h/2,w,h);x.restore()}
+function ovUI(){const o=S.ov;$('#ovs').value=o?o.s*100:100;$('#ovx2').value=o?o.x*100:0;$('#ovy').value=o?o.y*100:0;$('#ovo').value=o?o.o*100:100;$('#ovT').textContent='相框位置：'+(!o||o.top?'相片上方':'相片下方');$('#ovK').classList.toggle('on',!!(o&&o.key));$('#ovF').classList.toggle('on',!!(o&&o.fill));$('#penT').textContent='塗鴉模式：'+(S.penOn?'開':'關');$('#penT').classList.toggle('on',!!S.penOn)}
+[['#ovs','s'],['#ovx2','x'],['#ovy','y'],['#ovo','o']].forEach(([id,k])=>$(id).oninput=e=>{if(S.ov){S.ov[k]=+e.target.value/100;draw(cv,1,true)}});
+$('#ovT').onclick=()=>{if(S.ov){S.ov.top=!S.ov.top;sync()}};$('#ovK').onclick=()=>{if(S.ov){S.ov.key=!S.ov.key;sync()}};$('#ovF').onclick=()=>{if(S.ov){S.ov.fill=!S.ov.fill;sync()}};
+$('#sta').oninput=e=>{const k=S.stk[S.ss];if(k){k.a=+e.target.value;draw(cv,1,true)}};
+$('#penT').onclick=()=>{S.penOn=!S.penOn;cv.style.cursor=S.penOn?'crosshair':'grab';ovUI()};
+let dvT=null;
+function develop(){if(dvT)cancelAnimationFrame(dvT.id);const f=$('#fin'),t0=performance.now();let sp=1;dvT={};f.onclick=()=>{sp=6};
+ const step=n=>{const t=Math.min(1,(n-t0)/5000*sp),e=1-Math.pow(1-Math.min(1,t/.25),3);f.style.transform='translateY('+(-(1-e)*108)+'%)';S.dv=t<.25?0:(t-.25)/.75;draw(f,1,false);
+  if(t<1)dvT.id=requestAnimationFrame(step);else{S.dv=null;f.style.transform='none';draw(f,1,false);dvT=null;f.onclick=null;$('#devHint').hidden=true}};
+ $('#devHint').hidden=false;dvT.id=requestAnimationFrame(step)}
+const b64=u=>{let s='';u.forEach(c=>s+=String.fromCharCode(c));return btoa(s)};
+async function encMsg(msg,pw){const salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12)),k=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveKey']),K=await crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:150000,hash:'SHA-256'},k,{name:'AES-GCM',length:256},false,['encrypt']),ct=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},K,new TextEncoder().encode(msg)));return[b64(ct),b64(salt),b64(iv)]}
+const SECT=(img,ct,salt,iv)=>`<!DOCTYPE html><html lang="zh-Hant"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MONO FILM 隱藏留言</title><style>body{font:16px system-ui,"Noto Sans TC",sans-serif;background:#f5f5f5;color:#171717;text-align:center;padding:24px;margin:0}img{max-width:100%;max-height:70vh;box-shadow:0 10px 30px rgba(0,0,0,.2)}input,button{font:inherit;padding:10px 14px;border:1px solid #484848}button{background:#171717;color:#fff}#m{margin:20px auto;max-width:480px;white-space:pre-wrap;background:#fff;padding:20px;border:1px solid #d9d9d9;display:none}</style><h2>MONO FILM</h2><img src="${img}" alt=""><p>這張拍貼藏著一段留言，輸入解鎖碼查看</p><input id="p" type="password" placeholder="解鎖碼"> <button id="b">解鎖</button><p id="e"></p><div id="m"></div><`+`script>const B=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));b.onclick=async()=>{try{const k=await crypto.subtle.importKey('raw',new TextEncoder().encode(p.value),'PBKDF2',false,['deriveKey']),K=await crypto.subtle.deriveKey({name:'PBKDF2',salt:B('${salt}'),iterations:150000,hash:'SHA-256'},k,{name:'AES-GCM',length:256},false,['decrypt']),d=await crypto.subtle.decrypt({name:'AES-GCM',iv:B('${iv}')},K,B('${ct}'));m.textContent=new TextDecoder().decode(d);m.style.display='block';e.textContent=''}catch(x){e.textContent='解鎖碼不正確'}}<`+`/script></html>`;
+$('#sgo').onclick=async()=>{const m=$('#smsg').value.trim(),pw=$('#spw').value;if(!m){toast('請先輸入留言');return}if(pw.length<4){toast('解鎖碼至少 4 個字');return}
+ if(!window.crypto||!crypto.subtle){toast('此環境不支援加密（需要 HTTPS 或 localhost）');return}
+ try{$('#sgo').disabled=true;const c=document.createElement('canvas');draw(c,1,false);const[ct,salt,iv]=await encMsg(m,pw),h=SECT(c.toDataURL('image/jpeg',.85),ct,salt,iv),a=document.createElement('a');a.href=URL.createObjectURL(new Blob([h],{type:'text/html'}));a.download='mono-film-secret.html';document.body.appendChild(a);a.click();a.remove();toast('已產生互動檔案，請另外告訴對方解鎖碼')}catch(e){toast('產生失敗，請再試一次')}$('#sgo').disabled=false};
+addEventListener('beforeunload',e=>{if(!saved&&S.photos.some(Boolean)){e.preventDefault();e.returnValue=''}});
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&page=='source')camStop()});
+$$('.moods').forEach(e=>e.innerHTML=Object.keys(MN).map(k=>`<button class="opt" data-mood="${k}">${MN[k]}</button>`).join(''));
+$('#dirO').innerHTML=Object.entries(DIRN).map(([k,v])=>`<button class="opt" data-k="dir" data-v="${k}">${v}導演</button>`).join('');
+$('#rollB').onclick=()=>{roll();syncBtns()};
+$('#fr2').innerHTML=[...Object.keys(FR),...Object.keys(FRX)].map(k=>`<button class="ft" data-k="frame" data-v="${k}" aria-label="${k}"><img src="${frameThumb(k)}" alt=""></button>`).join('');
+$('#ornO').innerHTML=Object.entries(ORN).map(([k,v])=>`<button class="opt" data-k="orn" data-v="${k}">${v}</button>`).join('');
+$('#ornC').innerHTML=['auto','#171717','#FFFFFF','#E58BA0','#6E9BE0','#E0B24C','#8E7CC3','#5BA87A'].map(k=>`<button class="sw" data-k="ornC" data-v="${k}" aria-label="${k}" style="background:${k=='auto'?'conic-gradient(#171717 50%,#fff 0)':k}"></button>`).join('');
+syncBtns();
+</script>
+</body>
+</html>
